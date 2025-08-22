@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="hu">
+
+<head>
+    <meta charset="UTF-8">
+    <title>DC Motor szimulátor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f8f8f8;
+            color: #333;
+        }
+
+        h1 {
+            margin-top: 20px;
+            font-size: 28px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .motor-panel {
+            width: 200px;
+            height: 200px;
+            background: #e53935;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .motor {
+            width: 100px;
+            height: 100px;
+            border: 8px solid #1976d2;
+            border-top: 8px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            animation-play-state: paused;
+            /* alapból áll */
+        }
+
+        @keyframes spinForward {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spinBackward {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        .controls {
+            background: #fff;
+            padding: 15px;
+            width: 280px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            text-align: left;
+        }
+
+        .controls h2 {
+            margin-top: 0;
+        }
+
+        .control-row {
+            margin: 15px 0;
+        }
+
+        button {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #1976d2;
+            color: white;
+            font-weight: bold;
+            transition: background 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #0d47a1;
+        }
+
+        button.active {
+            background: #e53935;
+            /* pirosabb szín, hogy kitűnjön */
+        }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        #speedValue {
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>DC Motor szimulátor</h1>
+
+    <div class="container">
+        <!-- Motor panel -->
+        <div class="motor-panel">
+            <div class="motor" id="motor"></div>
+        </div>
+
+        <!-- Vezérlők -->
+        <div class="controls">
+            <h2>Vezérlőpult</h2>
+            <div class="control-row">
+                <button onclick="startMotor(1)">Előre</button>
+                <button onclick="startMotor(-1)">Hátra</button>
+                <button onclick="stopMotor()">Stop</button>
+            </div>
+            <div class="control-row">
+                <label for="speed">Sebesség:</label>
+                <input type="range" id="speed" min="0" max="100" value="50" oninput="updateSpeed()">
+                <span id="speedValue">Sebesség: 50%</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let motor = document.getElementById("motor");
+        let direction = 1;
+        let speed = 50;
+
+        function startMotor(dir) {
+            direction = dir;
+            motor.style.animationPlayState = "running";
+
+            // iránytól függő animáció
+            if (direction === 1) {
+                motor.style.animationName = "spinForward";
+            } else {
+                motor.style.animationName = "spinBackward";
+            }
+
+            // gombok vizuális jelölése
+            document.querySelectorAll(".controls button").forEach(btn => btn.classList.remove("active"));
+            if (dir === 1) {
+                document.querySelector(".controls button:nth-child(1)").classList.add("active");
+            } else {
+                document.querySelector(".controls button:nth-child(2)").classList.add("active");
+            }
+
+            updateSpeed();
+        }
+
+        function stopMotor() {
+            motor.style.animationPlayState = "paused";
+            document.querySelectorAll(".controls button").forEach(btn => btn.classList.remove("active"));
+        }
+
+
+
+        function stopMotor() {
+            motor.style.animationPlayState = "paused";
+        }
+
+        function updateSpeed() {
+            speed = document.getElementById("speed").value;
+            document.getElementById("speedValue").innerText = "Sebesség: " + speed + "%";
+
+            if (speed == 0) {
+                stopMotor();
+                return;
+            }
+
+            let duration = 1 / (speed / 50); // gyorsabb, ha nagyobb a speed
+            motor.style.animationDuration = duration + "s";
+
+            // Irányváltás (scaleX trükk)
+            motor.style.transform = `scaleX(${direction})`;
+        }
+    </script>
+</body>
+
+</html>
